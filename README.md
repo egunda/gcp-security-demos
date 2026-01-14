@@ -42,7 +42,33 @@ This project implements a multi-environment (Dev/Prod) setup focusing on defense
 
 ---
 
-## 🛠️ Deployment Steps
+## � Cloud Functions Reference
+
+The `functions/` directory contains event-driven Python microservices that handle everything from automated remediation to notification routing.
+
+### 🔐 Security & Remediation
+*   **`remediate-bucket` / `remediate-firewall` / `remediate-instance`**: Automated response functions that trigger via Slack/SCC to roll back insecure configuration changes (e.g., deleting a risky firewall rule or closing a public GCS bucket).
+*   **`scc-remediation`**: Central orchestrator that receives Slack interactive payloads and routes them to specific remediation functions.
+*   **`mute-finding` / `deactivate-finding`**: Managed workflows to acknowledge or suppress findings in Security Command Center directly from Slack.
+*   **`provision-access`**: Implements Just-In-Time (JIT) access patterns, adding temporary IAM roles to users upon approval.
+*   **`model-armor`**: Integrates with the Model Armor API to screen Generative AI prompts for security risks before they reach the LLM.
+
+### 📢 Notifications & ChatOps
+*   **`scc-slack-notification`**: Transformers that convert raw SCC findings into rich, interactive Slack messages.
+*   **`scc-jira-notification`**: Automatically creates and syncs Jira issues based on Security Command Center findings.
+*   **`iam-notification` / `identity-notification` / `instance-notification`**: Dedicated alerts for specific resource lifecycle changes (e.g., new IAM policy bindings or VM creations).
+*   **`approval-notification` / `deploy-notification`**: Hooks for CI/CD pipelines to alert security teams of pending infrastructure changes.
+
+### 🛠️ Infrastructure & Demos
+*   **`cloud-hsm-demo`**: Demonstrates manual asymmetric decryption using Cloud HSM (Hardware Security Module) backed keys.
+*   **`dlp-scan-storage` / `dlp-scan-bq-remote`**: Implementation of Data Loss Prevention (DLP) scans for files in GCS and datasets in BigQuery.
+*   **`recaptcha-backend`**: Validates reCAPTCHA Enterprise assessments received from the demo frontend.
+*   **`mfa-status`**: Queries Cloud Identity to report on users who are not yet enrolled in 2FA/MFA.
+*   **`admin-access` / `deploy-approval`**: Backend logic for ChatOps-based approval workflows.
+
+---
+
+## �🛠️ Deployment Steps
 
 This project is designed to be deployed into a **brand new GCP Project**.
 
@@ -54,7 +80,7 @@ This project is designed to be deployed into a **brand new GCP Project**.
 
 ### 2. Local Initialization
 
-Clone this repository and navigate to the desired environment:
+Clone this repository and navigate to the desired environment (e.g., `dev`):
 
 ```bash
 git clone https://github.com/egunda/gcp-security-demos.git
@@ -69,7 +95,7 @@ Update the `terraform.tfvars` file with your specific project details:
 project      = "YOUR_PROJECT_ID"
 organization = "YOUR_ORG_ID"
 region       = "us-central1"
-iap_user     = "user@vour-domain.com"
+iap_user     = "user@your-domain.com"
 # ... set other demo flags to true/false as needed
 ```
 
@@ -98,7 +124,7 @@ The included `cloudbuild.yaml` allows for GitOps-style deployments.
 *   **Infrastructure as Code (IaC)**: Eliminating manual configuration drift.
 *   **Secret Management**: Sensitive tokens (Slack, API keys) are stored in Google Cloud Secret Manager.
 *   **Encryption**: Using Cloud KMS for customer-managed encryption keys (CMEK).
-*   **VPC Isolation**: Strict subnetworking and VPC Service Controls.
+*   **VPC Isolation**: Strict subnetworking and VPC Service Controls (VPC-SC).
 
 ---
 
